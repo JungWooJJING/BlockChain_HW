@@ -20,8 +20,6 @@ contract Escrow {
         uint256 amount;                 // 거래 금액 (wei)
         bytes32 secretHash;             // 구매자가 설정한 secret hash
         string  itemDescription;        // 상품 설명
-        uint256 createdAt;              // 거래 생성 시간
-        uint256 fundedAt;               // 구매자 입금 시간
         uint256 shipTimeout;            // 배송까지 허용되는 시간
         uint256 receiveTimeout;         // 수령 확인까지 허용되는 시간
         uint256 shipDeadline;           // 배송 마감 시간
@@ -34,8 +32,8 @@ contract Escrow {
     // 다음 거래 ID
     uint256 public nextDealId;
 
-    // dealId를 기준으로 거래 정보를 저장
-    mapping(uint256 => Deal) public deals;
+    // dealId를 기준으로 거래 정보를 저장 (자동 getter 비활성화 - getDeal 사용)
+    mapping(uint256 => Deal) internal deals;
 
     // 사용자 주소별로 참여한 거래 ID 목록 저장
     mapping(address => uint256[]) public dealsByUser;
@@ -118,7 +116,6 @@ contract Escrow {
         d.itemDescription = itemDescription;
         d.shipTimeout     = shipT;
         d.receiveTimeout  = receiveT;
-        d.createdAt       = block.timestamp;
         d.state           = State.Created;
 
         // 판매자의 거래 목록에 추가
@@ -143,7 +140,6 @@ contract Escrow {
         // 구매자 정보와 secret hash 저장
         d.buyer        = msg.sender;
         d.secretHash   = secretHash;
-        d.fundedAt     = block.timestamp;
         d.shipDeadline = block.timestamp + d.shipTimeout;
         d.state        = State.Funded;
 
